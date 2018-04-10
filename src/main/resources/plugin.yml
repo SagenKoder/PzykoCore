@@ -3,7 +3,7 @@ version: 0.0.1
 description: Core plugin for Pzyko.Org
 author: Sagen
 main: org.pzyko.pzykocore.PzykoCore
-depend: [WorldEdit]
+softdepend: [WorldEdit]
 commands:
   pzyko:
     description: Information about this plugin
