@@ -1,4 +1,0 @@
-#The language to use, currently only nb_NO or en_US
-locale: en_US
-enable_launchpads: true
-enable_autoupdater: true
