@@ -1,5 +1,5 @@
 -- -----------------------------------------------------
--- Table `user`
+-- Table `pzyko_user`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `pzyko_user` (
   `uuid` CHAR(36) NOT NULL,
@@ -10,7 +10,7 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `claim`
+-- Table `pzyko_claim`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `pzyko_claim` (
   `id` INT NOT NULL,
@@ -25,18 +25,7 @@ DEFAULT CHARACTER SET = utf8;
 
 
 -- -----------------------------------------------------
--- Table `claim_role_permission`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `pzyko_claim_role_permission` (
-  `rolename` ENUM('ACCESS', 'CONTAINER', 'BUILD', 'MANAGE') NOT NULL,
-  `permission` VARCHAR(45) NOT NULL,
-  `value` TINYINT NOT NULL DEFAULT 0,
-  PRIMARY KEY (`rolename`, `permission`))
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `claim_user_role`
+-- Table `pzyko_claim_user_role`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `pzyko_claim_user_role` (
   `claim_id` INT NOT NULL,
@@ -45,7 +34,6 @@ CREATE TABLE IF NOT EXISTS `pzyko_claim_user_role` (
   PRIMARY KEY (`claim_id`, `user_uuid`, `rolepermission`),
   INDEX `pzyko_fk_claim_has_user_user1_idx` (`user_uuid` ASC),
   INDEX `pzyko_fk_claim_has_user_claim_idx` (`claim_id` ASC),
-  INDEX `pzyko_fk_role_rolepermission1_idx` (`rolepermission` ASC),
   CONSTRAINT `pzyko_fk_claim_has_user_claim`
     FOREIGN KEY (`claim_id`)
     REFERENCES `pzyko_claim` (`id`)
@@ -55,18 +43,13 @@ CREATE TABLE IF NOT EXISTS `pzyko_claim_user_role` (
     FOREIGN KEY (`user_uuid`)
     REFERENCES `pzyko_user` (`uuid`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `pzyko_fk_role_rolepermission1`
-    FOREIGN KEY (`rolepermission`)
-    REFERENCES `pzyko_claim_role_permission` (`rolename`)
-    ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;
 
 
 -- -----------------------------------------------------
--- Table `claim_flag`
+-- Table `pzyko_claim_flag`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `pzyko_claim_flag` (
   `claim_id` INT NOT NULL,
