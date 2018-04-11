@@ -15,11 +15,6 @@ public class PzykoCmd implements PzykoCommand {
     }
 
     @Override
-    public String getPermission() {
-        return null;
-    }
-
-    @Override
     public List<String> getAliases() {
         return new ArrayList<String>();
     }

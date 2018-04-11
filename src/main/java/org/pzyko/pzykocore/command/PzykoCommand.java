@@ -9,8 +9,6 @@ public interface PzykoCommand {
 
     String getName();
 
-    String getPermission();
-
     List<String> getAliases();
 
     void run(CommandSender sender, String label, String[] args);

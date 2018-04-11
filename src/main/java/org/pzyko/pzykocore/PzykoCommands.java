@@ -6,6 +6,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
+import org.pzyko.pzykocore.command.ClaimCmd;
 import org.pzyko.pzykocore.command.PzykoCmd;
 import org.pzyko.pzykocore.command.PzykoCommand;
 
@@ -21,6 +22,7 @@ public class PzykoCommands implements TabCompleter {
     public static void load() {
         // load commands
         commands.add(new PzykoCmd());
+        commands.add(new ClaimCmd());
 
         pzykoCommands = new PzykoCommands();
 

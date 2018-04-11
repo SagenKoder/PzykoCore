@@ -12,7 +12,7 @@ public class ClaimManager {
     // loade claims som er innenfor en viss radius av alle spillere til enhver tid
     // unloade om alle spillere drar fra området
 
-    public Optional<Object> getClaim(World world, int x, int y) {
+    public Optional<Object> getTopClaim(World world, double x, double y) {
         // return a buffered instance if exists
 
         // else select from database and create a new instance

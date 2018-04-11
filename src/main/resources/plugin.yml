@@ -7,3 +7,5 @@ softdepend: [WorldEdit]
 commands:
   pzyko:
     description: Information about this plugin
+  claim:
+    description: Commands for managing claims

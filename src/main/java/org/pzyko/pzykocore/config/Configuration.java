@@ -30,7 +30,6 @@ public class Configuration extends FileGeneralConfiguration {
         this(configurationManager, file.getName());
     }
 
-    @SuppressWarnings("unused")
     private Configuration() {
         this.path = "";
         this.name = "";
