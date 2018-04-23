@@ -12,6 +12,8 @@ public class Claim {
 
     private int sqlID = -1;
 
+    private boolean isChanged = false;
+
     private List<UUID> ACCESS;
     private List<UUID> CONTAINER;
     private List<UUID> BUILD;
@@ -22,6 +24,8 @@ public class Claim {
     private int xMax;
     private int zMin;
     private int zMax;
+
+    private long lastTouched;
 
     public Claim(String world, int x, int z) {
         this(world, x, z, x, z);
@@ -39,10 +43,41 @@ public class Claim {
         this.CONTAINER = new ArrayList<>();
         this.BUILD = new ArrayList<>();
         this.MANAGE = new ArrayList<>();
+
+        touch();
+    }
+
+    public void set(int x1, int z1, int x2, int z2) {
+        this.xMin = Math.min(x1, x2);
+        this.xMax = Math.max(x1, x2);
+        this.zMin = Math.min(z1, z2);
+        this.zMax = Math.max(z1, z2);
+
+        markChanged();
+    }
+
+    public void touch() {
+        lastTouched = System.currentTimeMillis();
+    }
+
+    public Long getLastTouch() {
+        return lastTouched;
+    }
+
+    public void markChanged() {
+        isChanged = true;
+    }
+
+    public boolean isChanged() {
+        return isChanged;
     }
 
     public void setSqlID(int id) {
         this.sqlID = id;
+    }
+
+    public int getSqlID() {
+        return sqlID;
     }
 
     public void expandToBlock(int x, int z) {
@@ -57,6 +92,8 @@ public class Claim {
         } else if (this.zMax < z) {
             this.zMax = z;
         }
+
+        markChanged();
     }
 
     public double distanceFromClaimSqr(double x, double z) {
@@ -73,32 +110,51 @@ public class Claim {
     public void grantACCESS(UUID uuid) {
         if(!ACCESS.contains(uuid))
             ACCESS.add(uuid);
+
+        markChanged();
     }
 
     public void grantCONTAINER(UUID uuid) {
         if(!CONTAINER.contains(uuid))
             CONTAINER.add(uuid);
+
+        markChanged();
     }
 
     public void grantBUILD(UUID uuid) {
         if(!BUILD.contains(uuid))
             BUILD.add(uuid);
+
+        markChanged();
     }
 
     public void grantMANAGE(UUID uuid) {
         if(!MANAGE.contains(uuid))
             MANAGE.add(uuid);
+
+        markChanged();
+    }
+
+    public boolean overlapsWith(int otherXMin, int otherZMin, int otherXMax, int otherZMax) {
+        if(this.xMin > otherXMax || otherXMin > this.xMax)
+            return false;
+
+        if(this.zMin > otherZMax || otherZMin > this.zMax)
+            return false;
+
+        return true;
     }
 
     public void insert() {
-        if(sqlID >= 0) {
+        if(sqlID < 0) {
             try (Connection conn = PzykoCore.get().getSql().getConnection();
-                 PreparedStatement ps = conn.prepareStatement(SQL.SQL_INSERT_INTO_CLAIM.replace("pzyko_", SQL.PREFIX), Statement.RETURN_GENERATED_KEYS)) {
+                 PreparedStatement ps = conn.prepareStatement(SQL.SQL_INSERT_INTO_CLAIM, Statement.RETURN_GENERATED_KEYS)) {
                 ps.setString(1, world);
                 ps.setInt(2, xMin);
                 ps.setInt(3, zMin);
                 ps.setInt(4, xMax);
                 ps.setInt(5, zMax);
+                System.out.println(ps.toString());
                 ps.executeUpdate();
                 ResultSet rs = ps.getGeneratedKeys();
                 if(rs.next()) {
@@ -107,6 +163,75 @@ public class Claim {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
+        } else {
+            try (Connection conn = PzykoCore.get().getSql().getConnection();
+                 PreparedStatement ps = conn.prepareStatement(SQL.SQL_UPDATE_CLAIM)) {
+                ps.setString(1, world);
+                ps.setInt(2, xMin);
+                ps.setInt(3, zMin);
+                ps.setInt(4, xMax);
+                ps.setInt(5, zMax);
+                ps.setInt(6, sqlID);
+                System.out.println(ps.toString());
+                ps.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
+
+        try (Connection conn = PzykoCore.get().getSql().getConnection();
+             PreparedStatement ps = conn.prepareStatement(SQL.SQL_INSERT_CLAIMROLE)){
+            conn.setAutoCommit(false);
+            for(UUID uuid : ACCESS) {
+                ps.setInt(1, sqlID);
+                ps.setString(2, uuid.toString());
+                ps.setString(3, "ACCESS");
+                ps.execute();
+            }
+            for(UUID uuid : CONTAINER) {
+                ps.setInt(1, sqlID);
+                ps.setString(2, uuid.toString());
+                ps.setString(3, "CONTAINER");
+                ps.execute();
+            }
+            for(UUID uuid : BUILD) {
+                ps.setInt(1, sqlID);
+                ps.setString(2, uuid.toString());
+                ps.setString(3, "BUILD");
+                ps.execute();
+            }
+            for(UUID uuid : MANAGE) {
+                ps.setInt(1, sqlID);
+                ps.setString(2, uuid.toString());
+                ps.setString(3, "MANAGE");
+                ps.execute();
+            }
+            //ps.executeBatch();
+            conn.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        isChanged = false;
+    }
+
+    public String getWorld() {
+        return world;
+    }
+
+    public int getxMin() {
+        return xMin;
+    }
+
+    public int getxMax() {
+        return xMax;
+    }
+
+    public int getzMin() {
+        return zMin;
+    }
+
+    public int getzMax() {
+        return zMax;
     }
 }

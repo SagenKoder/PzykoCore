@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.pzyko.pzykocore.claim.ClaimListener;
 import org.pzyko.pzykocore.config.Configuration;
 import org.pzyko.pzykocore.config.ConfigurationManager;
 import org.pzyko.pzykocore.config.PlayerConfigurationManager;
@@ -28,6 +29,7 @@ public class PzykoCore extends JavaPlugin {
     private PlayerConfigurationManager playerConfigurationManager;
     private SQL sqlPool;
     private PlayerManager playerManager;
+    private ClaimManager claimManager;
 
     public void onEnable() {
         PzykoCore.instance = this;
@@ -51,6 +53,11 @@ public class PzykoCore extends JavaPlugin {
         SQL.SQL_CREATE_CLAIM_FLAG = SQL.SQL_CREATE_CLAIM_FLAG.replace("pzyko_", SQL.PREFIX);
 
         SQL.SQL_REPLACE_INTO_USER = SQL.SQL_REPLACE_INTO_USER.replace("pzyko_", SQL.PREFIX);
+        SQL.SQL_INSERT_INTO_CLAIM = SQL.SQL_INSERT_INTO_CLAIM.replace("pzyko_", SQL.PREFIX);
+        SQL.SQL_UPDATE_CLAIM = SQL.SQL_UPDATE_CLAIM.replace("pzyko_", SQL.PREFIX);
+        SQL.SQL_INSERT_CLAIMROLE = SQL.SQL_INSERT_CLAIMROLE.replace("pzyko_", SQL.PREFIX);
+        SQL.SQL_SELECT_ALL_NEAR = SQL.SQL_SELECT_ALL_NEAR.replace("pzyko_", SQL.PREFIX);
+        SQL.SQL_SELECT_USERROLE = SQL.SQL_SELECT_USERROLE.replace("pzyko_", SQL.PREFIX);
 
         this.sqlPool = new SQL(config.getString("MySQL.url"), config.getString("MySQL.user"), config.getString("MySQL.pass"));
 
@@ -84,7 +91,6 @@ public class PzykoCore extends JavaPlugin {
 
         if(!tables.contains(SQL.PREFIX + "user") ||
                 !tables.contains(SQL.PREFIX + "claim") ||
-                !tables.contains(SQL.PREFIX + "claim_role_permission") ||
                 !tables.contains(SQL.PREFIX + "claim_user_role") ||
                 !tables.contains(SQL.PREFIX + "claim_flag")) {
 
@@ -120,9 +126,11 @@ public class PzykoCore extends JavaPlugin {
         }
 
         this.playerManager = new PlayerManager();
+        this.claimManager = new ClaimManager();
 
         PzykoCommands.load();
         Bukkit.getPluginManager().registerEvents(new PlayerListener(), this);
+        Bukkit.getPluginManager().registerEvents(new ClaimListener(), this);
     }
 
     public void onDisable() {
@@ -152,5 +160,9 @@ public class PzykoCore extends JavaPlugin {
 
     public PlayerManager getPlayerManager() {
         return playerManager;
+    }
+
+    public ClaimManager getClaimManager() {
+        return claimManager;
     }
 }

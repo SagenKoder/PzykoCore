@@ -1,8 +1,18 @@
 package org.pzyko.pzykocore.command;
 
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -39,7 +49,7 @@ public class ClaimCmd implements PzykoCommand {
             break;
             case "deny" : subDeny(sender, Arrays.copyOfRange(args, 1, args.length));
             default :
-                sender.sendMessage("§Wrong use of the command!");
+                sender.sendMessage("§cWrong use of the command!");
                 sendHelp(sender);
                 return;
         }
@@ -48,7 +58,7 @@ public class ClaimCmd implements PzykoCommand {
     private void sendHelp(CommandSender sender) {
         sender.sendMessage("§e/claim §7Shows this list");
         sender.sendMessage("§e/claim info §7Displays info about a claim");
-        sender.sendMessage("§e/claim create §7Create a new claim");
+        sender.sendMessage("§e/claim create <name> §7Create a new claim");
         sender.sendMessage("§e/claim remove §7Delete the claim you are standing in");
         sender.sendMessage("§e/claim grant <player | ALL> access §7Grants access");
         sender.sendMessage("§e/claim grant <player | ALL> container §7Grants container usage");
@@ -63,7 +73,32 @@ public class ClaimCmd implements PzykoCommand {
     }
 
     private void subCreate(CommandSender sender, String...args) {
-        sender.sendMessage("§eTODO.... " + String.join(" ", args));
+        if(!(sender instanceof Player)) {
+            sender.sendMessage("§cOnly players can create claims silly...!");
+            return;
+        }
+
+        if(args.length != 1) {
+            sender.sendMessage("§cWrong use of command!");
+            sender.sendMessage("Use: /claim create <name of claim>");
+            return;
+        }
+
+        ItemStack is = new ItemStack(Material.GOLD_HOE);
+        ItemMeta im = is.getItemMeta();
+        im.setDisplayName("§6§lClaiming tool!");
+        im.setLore(Arrays.asList(new String[]{
+                "§a1: §bClick on any block to create a claim",
+                "§a2: §bThen click to expand the claim",
+                "§bto include the blocks you click.",
+                "§6When done -> Throw this tool away."
+        }));
+        is.setItemMeta(im);
+
+        ((Player) sender).getInventory().setItemInMainHand(is);
+
+        sender.sendMessage("§6You recieved a claiming tool!");
+        sender.sendMessage("§bStart by clicking where you want your claim. Then click to expand the claim to that block. When done, throw away your tool to finish.");
     }
 
     private void subRemove(CommandSender sender, String...args) {

@@ -15,11 +15,11 @@ public class PlayerManager {
             ps.setString(1, p.getUniqueId().toString());
             ps.setString(2, p.getName());
             ps.setLong(3, System.currentTimeMillis());
+            ps.setString(4, p.getName());
+            ps.setLong(5, System.currentTimeMillis());
             ps.execute();
         } catch (SQLException ioe) {
             ioe.printStackTrace();
         }
-
-        System.out.println("replaced....");
     }
 }
